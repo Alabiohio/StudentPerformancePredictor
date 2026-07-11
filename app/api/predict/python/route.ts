@@ -4,7 +4,7 @@ const PYTHON_API =
   (process.env.PYTHON_API_URL ?? process.env.NEXT_PUBLIC_PYTHON_API)?.replace(
     /\/$/,
     ""
-  ) ?? "http://localhost:8000";
+  ) ?? "https://student-performance-api-m9n3.onrender.com";
 
 export async function POST(request: Request) {
   let body: unknown;
