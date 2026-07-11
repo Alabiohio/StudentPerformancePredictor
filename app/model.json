@@ -1,0 +1,285 @@
+{
+  "columns": [
+    "Hours_Studied",
+    "Attendance",
+    "Sleep_Hours",
+    "Previous_Scores",
+    "Tutoring_Sessions",
+    "Physical_Activity",
+    "Parental_Involvement_Low",
+    "Parental_Involvement_Medium",
+    "Access_to_Resources_Low",
+    "Access_to_Resources_Medium",
+    "Extracurricular_Activities_Yes",
+    "Motivation_Level_Low",
+    "Motivation_Level_Medium",
+    "Internet_Access_Yes",
+    "Family_Income_Low",
+    "Family_Income_Medium",
+    "Teacher_Quality_Low",
+    "Teacher_Quality_Medium",
+    "School_Type_Public",
+    "Peer_Influence_Neutral",
+    "Peer_Influence_Positive",
+    "Learning_Disabilities_Yes",
+    "Parental_Education_Level_High School",
+    "Parental_Education_Level_Postgraduate",
+    "Distance_from_Home_Moderate",
+    "Distance_from_Home_Near",
+    "Gender_Male"
+  ],
+  "coef": [
+    0.8415025225465376,
+    0.5701909769501555,
+    0.03871077186026151,
+    0.1331598253243172,
+    1.4049057447172204,
+    0.6058905829182316,
+    -5.553594985513739,
+    -2.8427870957487578,
+    -5.543502221303246,
+    -2.587674425124881,
+    1.4033009162400831,
+    -2.923569250293958,
+    -1.4182620226242475,
+    2.7464445379557447,
+    -2.5783752198109084,
+    -1.3532983668698477,
+    -2.629133860235653,
+    -1.42241892131299,
+    0.025934943019684777,
+    1.4972692539236692,
+    2.8478012513446065,
+    -2.3953128533218973,
+    -1.2280247412859584,
+    1.4724257489543358,
+    1.070358579839272,
+    2.4632631956772464,
+    0.12032922401768861
+  ],
+  "intercept": -72.09159860545185,
+  "fields": [
+    {
+      "type": "num",
+      "name": "Hours_Studied"
+    },
+    {
+      "type": "num",
+      "name": "Attendance"
+    },
+    {
+      "type": "num",
+      "name": "Sleep_Hours"
+    },
+    {
+      "type": "num",
+      "name": "Previous_Scores"
+    },
+    {
+      "type": "num",
+      "name": "Tutoring_Sessions"
+    },
+    {
+      "type": "num",
+      "name": "Physical_Activity"
+    },
+    {
+      "type": "cat",
+      "field": "Parental_Involvement",
+      "level": "Low"
+    },
+    {
+      "type": "cat",
+      "field": "Parental_Involvement",
+      "level": "Medium"
+    },
+    {
+      "type": "cat",
+      "field": "Access_to_Resources",
+      "level": "Low"
+    },
+    {
+      "type": "cat",
+      "field": "Access_to_Resources",
+      "level": "Medium"
+    },
+    {
+      "type": "cat",
+      "field": "Extracurricular_Activities",
+      "level": "Yes"
+    },
+    {
+      "type": "cat",
+      "field": "Motivation_Level",
+      "level": "Low"
+    },
+    {
+      "type": "cat",
+      "field": "Motivation_Level",
+      "level": "Medium"
+    },
+    {
+      "type": "cat",
+      "field": "Internet_Access",
+      "level": "Yes"
+    },
+    {
+      "type": "cat",
+      "field": "Family_Income",
+      "level": "Low"
+    },
+    {
+      "type": "cat",
+      "field": "Family_Income",
+      "level": "Medium"
+    },
+    {
+      "type": "cat",
+      "field": "Teacher_Quality",
+      "level": "Low"
+    },
+    {
+      "type": "cat",
+      "field": "Teacher_Quality",
+      "level": "Medium"
+    },
+    {
+      "type": "cat",
+      "field": "School_Type",
+      "level": "Public"
+    },
+    {
+      "type": "cat",
+      "field": "Peer_Influence",
+      "level": "Neutral"
+    },
+    {
+      "type": "cat",
+      "field": "Peer_Influence",
+      "level": "Positive"
+    },
+    {
+      "type": "cat",
+      "field": "Learning_Disabilities",
+      "level": "Yes"
+    },
+    {
+      "type": "cat",
+      "field": "Parental_Education_Level",
+      "level": "High School"
+    },
+    {
+      "type": "cat",
+      "field": "Parental_Education_Level",
+      "level": "Postgraduate"
+    },
+    {
+      "type": "cat",
+      "field": "Distance_from_Home",
+      "level": "Moderate"
+    },
+    {
+      "type": "cat",
+      "field": "Distance_from_Home",
+      "level": "Near"
+    },
+    {
+      "type": "cat",
+      "field": "Gender",
+      "level": "Male"
+    }
+  ],
+  "numeric": {
+    "Hours_Studied": [
+      1,
+      44
+    ],
+    "Attendance": [
+      60,
+      100
+    ],
+    "Sleep_Hours": [
+      4,
+      10
+    ],
+    "Previous_Scores": [
+      50,
+      100
+    ],
+    "Tutoring_Sessions": [
+      0,
+      8
+    ],
+    "Physical_Activity": [
+      0,
+      6
+    ]
+  },
+  "categorical": {
+    "Parental_Involvement": [
+      "High",
+      "Low",
+      "Medium"
+    ],
+    "Access_to_Resources": [
+      "High",
+      "Low",
+      "Medium"
+    ],
+    "Extracurricular_Activities": [
+      "No",
+      "Yes"
+    ],
+    "Motivation_Level": [
+      "High",
+      "Low",
+      "Medium"
+    ],
+    "Internet_Access": [
+      "No",
+      "Yes"
+    ],
+    "Family_Income": [
+      "High",
+      "Low",
+      "Medium"
+    ],
+    "Teacher_Quality": [
+      "High",
+      "Low",
+      "Medium"
+    ],
+    "School_Type": [
+      "Private",
+      "Public"
+    ],
+    "Peer_Influence": [
+      "Negative",
+      "Neutral",
+      "Positive"
+    ],
+    "Learning_Disabilities": [
+      "No",
+      "Yes"
+    ],
+    "Parental_Education_Level": [
+      "College",
+      "High School",
+      "Postgraduate"
+    ],
+    "Distance_from_Home": [
+      "Far",
+      "Moderate",
+      "Near"
+    ],
+    "Gender": [
+      "Female",
+      "Male"
+    ]
+  },
+  "meta": {
+    "accuracy": 0.9796,
+    "medianExamScore": 67.0,
+    "target": "High_Performer"
+  }
+}

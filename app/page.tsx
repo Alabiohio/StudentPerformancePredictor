@@ -1,65 +1,186 @@
-import Image from "next/image";
+import Predictor from "@/app/ui/predictor";
+import { MODEL_META } from "@/app/lib/fields";
+
+const stats = [
+  { value: "6,607", label: "Student records" },
+  { value: "98%", label: "Model accuracy" },
+  { value: "27", label: "Model features" },
+  { value: `${MODEL_META.medianExamScore}`, label: "Median exam score" },
+];
+
+const topFactors = [
+  { name: "Attendance", note: "Consistent class attendance" },
+  { name: "Hours Studied", note: "Weekly study time" },
+  { name: "Previous Scores", note: "Prior academic achievement" },
+  { name: "Tutoring Sessions", note: "Targeted support" },
+  { name: "Sleep Hours", note: "Rest and recovery" },
+];
+
+const steps = [
+  {
+    title: "Prepare the profile",
+    body: "Enter a student's academic, behavioural and environmental factors using the interactive form.",
+  },
+  {
+    title: "Run the model",
+    body: "Inputs are one-hot encoded and scored by a logistic regression model trained in Python.",
+  },
+  {
+    title: "Read the result",
+    body: "Get an instant prediction of whether the student is likely to be a high performer, with a confidence score.",
+  },
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main>
+      <section className="hero-gradient">
+        <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-28">
+          <div className="max-w-2xl animate-fade-up">
+            <h1 className="mt-5 text-5xl lg:text-7xl font-black font-blinker leading-[1.1] tracking-tight sm:text-6xl">
+              PREDICT <span className="text-gradient">student PERFORMANCE</span>{" "}
+              before exam day.
+            </h1>
+            <p className="mt-5 max-w-xl text-lg text-muted-foreground">
+              Model the likelihood that a student will be a high performer based
+              on study habits, lifestyle and environment — using a logistic
+              regression model trained on thousands of real student records.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <a href="#predict" className="btn-primary">
+                Try the predictor
+              </a>
+              <a href="#how" className="btn-secondary">
+                How it works
+              </a>
+            </div>
+          </div>
+
+          <dl className="mt-14 grid grid-cols-2 gap-4 sm:mt-16 sm:grid-cols-4">
+            {stats.map((stat) => (
+              <div key={stat.label} className="glass rounded-xl p-5">
+                <dt className="text-2xl font-bold text-foreground sm:text-3xl">
+                  {stat.value}
+                </dt>
+                <dd className="mt-1 text-sm text-muted-foreground">
+                  {stat.label}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20">
+        <div className="mb-9 text-center">
+          <span className="text-xs font-semibold uppercase tracking-wider text-accent">
+            Live demo
+          </span>
+          <h2 className="mt-2 text-3xl font-bold tracking-tight">
+            Performance predictor
+          </h2>
+          <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
+            Move the sliders and pick the options that best describe a student.
+            The model updates instantly.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <Predictor />
+      </section>
+
+      <section
+        id="how"
+        className="border-t border-border bg-card py-16 sm:py-20"
+      >
+        <div className="mx-auto max-w-6xl px-5 sm:px-8">
+          <div className="max-w-2xl">
+            <span className="text-xs font-semibold uppercase tracking-wider text-accent">
+              Methodology
+            </span>
+            <h2 className="mt-2 text-3xl font-bold tracking-tight">
+              How it works
+            </h2>
+            <p className="mt-3 text-muted-foreground">
+              The app wraps a machine learning pipeline built with scikit-learn.
+              Categorical inputs are encoded the same way the model was trained,
+              so predictions stay consistent with the offline experiments.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-5 md:grid-cols-3">
+            {steps.map((step, index) => (
+              <div key={step.title} className="glass rounded-xl p-6">
+                <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent/15 text-sm font-bold text-accent">
+                  {index + 1}
+                </span>
+                <h3 className="mt-4 text-lg font-semibold">{step.title}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {step.body}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-12 grid gap-8 lg:grid-cols-2">
+            <div className="card-surface rounded-2xl p-6 sm:p-8">
+              <h3 className="text-lg font-semibold">
+                Most influential factors
+              </h3>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Ranked by the Random Forest feature-importance analysis.
+              </p>
+              <ul className="mt-5 divide-y divide-border">
+                {topFactors.map((factor) => (
+                  <li
+                    key={factor.name}
+                    className="flex items-center justify-between py-3 first:pt-0 last:pb-0"
+                  >
+                    <span className="flex items-center gap-3 font-medium">
+                      <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+                      {factor.name}
+                    </span>
+                    <span className="text-sm text-muted-foreground">
+                      {factor.note}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="card-surface rounded-2xl p-6 sm:p-8">
+              <h3 className="text-lg font-semibold">About the target</h3>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                The model predicts a <strong>High Performer</strong> label, which
+                is derived from whether a student&apos;s exam score is above or
+                below the median ({MODEL_META.medianExamScore} points). Because
+                the label is computed from the exam score, the very high accuracy
+                partly reflects this relationship.
+              </p>
+              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                Logistic Regression reached{" "}
+                <strong>{(MODEL_META.accuracy * 100).toFixed(1)}%</strong>{" "}
+                accuracy on the held-out test set, outperforming Random Forest
+                (90%) and Decision Tree (83%).
+              </p>
+              <div className="mt-5 flex flex-wrap gap-2">
+                {["Logistic Regression", "Random Forest", "Decision Tree"].map(
+                  (model, i) => (
+                    <span
+                      key={model}
+                      className={`rounded-full px-3 py-1 text-xs font-medium ${
+                        i === 0
+                          ? "bg-accent/15 text-accent"
+                          : "bg-glass text-muted-foreground"
+                      }`}
+                    >
+                      {model}
+                    </span>
+                  )
+                )}
+              </div>
+            </div>
+          </div>
         </div>
-      </main>
-    </div>
+      </section>
+    </main>
   );
 }
