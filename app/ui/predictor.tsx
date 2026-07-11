@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   NUMERIC_FIELDS,
   CATEGORICAL_FIELDS,
   MODEL_META,
 } from "@/app/lib/fields";
+import { getContributions } from "@/app/lib/model";
+import ProfileFields from "@/app/ui/profile-fields";
 
 type Values = Record<string, string | number>;
 
@@ -23,31 +25,41 @@ type Result = {
   source: Source;
 };
 
-export default function Predictor() {
+export type Preset = {
+  label: string;
+  description: string;
+  values: Partial<Values>;
+};
+
+type PredictorProps = {
+  presets?: Preset[];
+  live?: boolean;
+  showContributions?: boolean;
+};
+
+export default function Predictor({
+  presets,
+  live = false,
+  showContributions = false,
+}: PredictorProps) {
   const [values, setValues] = useState<Values>(initialValues);
   const [source, setSource] = useState<Source>("ts");
+  const [liveOn, setLiveOn] = useState(live);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<Result | null>(null);
 
-  function update(name: string, value: string | number) {
-    setValues((prev) => ({ ...prev, [name]: value }));
-    setResult(null);
-  }
-
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  const runPredict = useCallback(async (payload: Values, src: Source) => {
     setLoading(true);
     setError(null);
 
-    const endpoint =
-      source === "python" ? "/api/predict/python" : "/api/predict";
+    const endpoint = src === "python" ? "/api/predict/python" : "/api/predict";
 
     try {
       const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -72,27 +84,63 @@ export default function Predictor() {
         highPerformer,
         probability,
         confidence: highPerformer ? probability : 1 - probability,
-        source,
+        source: src,
       });
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Something went wrong.";
       const hint =
-        source === "python"
+        src === "python"
           ? " Make sure the Python API is running (uvicorn app:app --reload)."
           : "";
       setError(message + hint);
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  function update(name: string, value: string | number) {
+    setValues((prev) => ({ ...prev, [name]: value }));
+    setResult(null);
   }
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    await runPredict(values, source);
+  }
+
+  function applyPreset(preset: Preset) {
+    setValues((prev) => ({ ...prev, ...preset.values }) as Values);
+    setResult(null);
+  }
+
+  useEffect(() => {
+    if (!liveOn) return;
+    const timer = setTimeout(() => {
+      runPredict(values, source);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [values, source, liveOn, runPredict]);
+
+  const contributions = useMemo(() => {
+    if (!showContributions || !result) return [];
+    return getContributions(values)
+      .slice()
+      .sort((a, b) => Math.abs(b.contribution) - Math.abs(a.contribution))
+      .slice(0, 6);
+  }, [showContributions, result, values]);
+
+  const maxContribution = contributions.reduce(
+    (max, c) => Math.max(max, Math.abs(c.contribution)),
+    0
+  );
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1.7fr_1fr]">
       <form
         id="predict"
         onSubmit={handleSubmit}
-        className="card-surface rounded-2xl p-6 sm:p-8"
+        className="lg:bg-card lg:border lg:border-border lg:rounded-2xl p-6 sm:px-4 sm:py-6 lg:p-8"
       >
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
@@ -152,80 +200,36 @@ export default function Predictor() {
           </div>
         </div>
 
-        <div className="mt-7 space-y-8">
-          <div>
-            <h4 className="mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-brand-muted">
-              <span className="h-px flex-1 bg-border" />
-              Academic &amp; lifestyle
-              <span className="h-px flex-1 bg-border" />
-            </h4>
-            <div className="space-y-5">
-              {NUMERIC_FIELDS.map((field) => {
-                const value = Number(values[field.name]);
-                return (
-                  <label key={field.name} className="block">
-                    <div className="flex items-baseline justify-between">
-                      <span className="text-sm font-medium">
-                        {field.label}
-                      </span>
-                      <span className="rounded-md bg-accent/10 px-2 py-0.5 text-sm font-semibold text-accent">
-                        {value}
-                        <span className="ml-0.5 text-[11px] font-normal text-muted-foreground">
-                          {field.unit}
-                        </span>
-                      </span>
-                    </div>
-                    <input
-                      type="range"
-                      min={field.min}
-                      max={field.max}
-                      step={field.step}
-                      value={value}
-                      onChange={(e) =>
-                        update(field.name, Number(e.target.value))
-                      }
-                      className="slider mt-3"
-                    />
-                    <div className="mt-1.5 flex justify-between text-[11px] text-muted-foreground">
-                      <span>{field.hint}</span>
-                      <span>
-                        {field.min}–{field.max}
-                      </span>
-                    </div>
-                  </label>
-                );
-              })}
-            </div>
+        {presets && presets.length > 0 && (
+          <div className="mt-5 flex flex-wrap gap-2">
+            {presets.map((preset) => (
+              <button
+                key={preset.label}
+                type="button"
+                onClick={() => applyPreset(preset)}
+                title={preset.description}
+                className="rounded-full border border-border bg-background px-3.5 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-accent hover:text-foreground"
+              >
+                {preset.label}
+              </button>
+            ))}
           </div>
+        )}
 
-          <div>
-            <h4 className="mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-brand-muted">
-              <span className="h-px flex-1 bg-border" />
-              Background &amp; environment
-              <span className="h-px flex-1 bg-border" />
-            </h4>
-            <div className="grid gap-x-5 gap-y-4 sm:grid-cols-2">
-              {CATEGORICAL_FIELDS.map((field) => (
-                <label key={field.name} className="block">
-                  <span className="text-sm font-medium">{field.label}</span>
-                  <select
-                    value={String(values[field.name])}
-                    onChange={(e) => update(field.name, e.target.value)}
-                    className="field-input mt-1.5"
-                  >
-                    {field.options.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                  <span className="mt-1 block text-[11px] text-muted-foreground">
-                    {field.hint}
-                  </span>
-                </label>
-              ))}
-            </div>
-          </div>
+        {live && (
+          <label className="mt-4 flex w-fit cursor-pointer items-center gap-2 text-sm text-muted-foreground">
+            <input
+              type="checkbox"
+              checked={liveOn}
+              onChange={(e) => setLiveOn(e.target.checked)}
+              className="h-4 w-4 accent-[var(--accent)]"
+            />
+            Predict automatically as I change inputs
+          </label>
+        )}
+
+        <div className="mt-7">
+          <ProfileFields values={values} onChange={update} />
         </div>
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -315,6 +319,53 @@ export default function Predictor() {
                   {(result.probability * 100).toFixed(1)}%
                 </span>
               </p>
+
+              {contributions.length > 0 && (
+                <div className="mt-5">
+                  <h4 className="text-sm font-semibold">What drives this result</h4>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Top factors pushing the prediction, by model weight.
+                  </p>
+                  <ul className="mt-4 space-y-3">
+                    {contributions.map((c) => {
+                      const positive = c.contribution >= 0;
+                      const width =
+                        maxContribution > 0
+                          ? (Math.abs(c.contribution) / maxContribution) * 100
+                          : 0;
+                      return (
+                        <li key={c.key}>
+                          <div className="flex items-baseline justify-between text-xs">
+                            <span className="font-medium text-foreground">
+                              {c.label}
+                            </span>
+                            <span
+                              className={
+                                positive ? "text-success" : "text-secondary"
+                              }
+                            >
+                              {positive ? "+" : "−"}
+                              {Math.abs(c.contribution).toFixed(1)}
+                            </span>
+                          </div>
+                          <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-fade">
+                            <div
+                              className={`h-full rounded-full ${
+                                positive ? "bg-success" : "bg-secondary"
+                              }`}
+                              style={{ width: `${width}%` }}
+                            />
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                  <p className="mt-4 text-[11px] leading-relaxed text-muted-foreground">
+                    Contributions are in log-odds units. The model sums them
+                    with the baseline to produce the final probability.
+                  </p>
+                </div>
+              )}
             </div>
           ) : (
             <div className="mt-6 flex h-52 flex-col items-center justify-center rounded-xl border border-dashed border-border text-center">
